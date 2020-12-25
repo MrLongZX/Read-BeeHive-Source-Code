@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+// 计算时间性能方面的分析器
 @interface BHTimeProfiler : NSObject
 
 #pragma mark - Open API

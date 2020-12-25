@@ -18,6 +18,7 @@
 
 @implementation BHContext
 
+// 初始化单例
 + (instancetype)shareInstance
 {
     static dispatch_once_t p;
@@ -26,6 +27,7 @@
     dispatch_once(&p, ^{
         BHInstance = [[[self class] alloc] init];
         if ([BHInstance isKindOfClass:[BHContext class]]) {
+            // 初始化全局配置
             ((BHContext *) BHInstance).config = [BHConfig shareInstance];
         }
     });
@@ -48,13 +50,16 @@
     return [[BHContext shareInstance].servicesByName objectForKey:serviceName];
 }
 
+// 初始化变量
 - (instancetype)init
 {
     self = [super init];
     if (self) {
         self.modulesByName  = [[NSMutableDictionary alloc] initWithCapacity:1];
         self.servicesByName  = [[NSMutableDictionary alloc] initWithCapacity:1];
+        // 默认组件配置名称
         self.moduleConfigName = @"BeeHive.bundle/BeeHive";
+        // 默认服务配置名称
         self.serviceConfigName = @"BeeHive.bundle/BHService";
       
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > 80400

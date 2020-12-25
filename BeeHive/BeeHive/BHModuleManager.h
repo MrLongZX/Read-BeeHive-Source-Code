@@ -52,8 +52,11 @@ typedef NS_ENUM(NSInteger, BHModuleEventType)
 + (instancetype)sharedManager;
 
 // If you do not comply with set Level protocol, the default Normal
+// 如果您不遵守设置级别协议，则默认为“正常”
+// 注册动态组件
 - (void)registerDynamicModule:(Class)moduleClass;
 
+// 注册动态组件 是否触发初始化事件
 - (void)registerDynamicModule:(Class)moduleClass
        shouldTriggerInitEvent:(BOOL)shouldTriggerInitEvent;
 

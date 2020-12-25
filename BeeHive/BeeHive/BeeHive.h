@@ -15,13 +15,15 @@
 
 @interface BeeHive : NSObject
 
-//save application global context
+//save application global context 应用全局上下文
 @property(nonatomic, strong) BHContext *context;
 
+// 启动异常
 @property (nonatomic, assign) BOOL enableException;
 
 + (instancetype)shareInstance;
 
+// 注册动态组件
 + (void)registerDynamicModule:(Class) moduleClass;
 
 - (id)createService:(Protocol *)proto;

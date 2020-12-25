@@ -24,6 +24,7 @@
     return BHInstance;
 }
 
+// 注册动态组件
 + (void)registerDynamicModule:(Class)moduleClass
 {
     [[BHModuleManager sharedManager] registerDynamicModule:moduleClass];
@@ -50,10 +51,12 @@
 
 #pragma mark - Private
 
+// 保存应用全局上下文
 -(void)setContext:(BHContext *)context
 {
     _context = context;
     
+    // 只执行一次
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [self loadStaticServices];
@@ -65,8 +68,10 @@
 - (void)loadStaticModules
 {
     
+    // 读取本地组件配置plist文件里面的Module，并注册到BHModuleManager的BHModuleInfos数组中
     [[BHModuleManager sharedManager] loadLocalModules];
     
+    // 根据BHModuleInfos，实例化组件，添加到BHModules数组，再对组件实例注册系统事件
     [[BHModuleManager sharedManager] registedAllModules];
     
 }

@@ -10,7 +10,6 @@
 
 #import "BeeHive.h"
 #import "BHService.h"
-
 #import "BHUserTrackViewController.h"
 
 @interface UserTrackModule()<BHModuleProtocol>
@@ -26,8 +25,6 @@ BH_EXPORT_MODULE(NO)
 {
     NSLog(@"UserTrackModule setup");
 }
-
-
 
 -(void)modInit:(BHContext *)context
 {

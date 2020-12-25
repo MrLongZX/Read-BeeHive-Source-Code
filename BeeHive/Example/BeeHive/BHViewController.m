@@ -12,6 +12,7 @@
 #import "BHService.h"
 
 @BeeHiveService(HomeServiceProtocol,BHViewController)
+
 @interface BHViewController ()<HomeServiceProtocol>
 
 @property(nonatomic,strong) NSMutableArray *registerViewControllers;
@@ -34,61 +35,50 @@
         
         demoTableViewController *v1 = [[demoTableViewController alloc] init];
         if ([v1 isKindOfClass:[UIViewController class]]) {
-            [self registerViewController:v1 title:@"埋点" iconName:nil];
+            [self registerViewController:v1 title:@"埋点1" iconName:nil];
         }
         
         id<UserTrackServiceProtocol> v4 = [[BeeHive shareInstance] createService:@protocol(UserTrackServiceProtocol)];
         if ([v4 isKindOfClass:[UIViewController class]]) {
-            [self registerViewController:(UIViewController *)v4 title:@"埋点3" iconName:nil];
+            [self registerViewController:(UIViewController *)v4 title:@"埋点2" iconName:nil];
         }
-        
         
         id<TradeServiceProtocol> v2 = [[BeeHive shareInstance] createService:@protocol(TradeServiceProtocol)];
         if ([v2 isKindOfClass:[UIViewController class]]) {
             v2.itemId = @"sdfsdfsfasf";
-            [self registerViewController:(UIViewController *)v2 title:@"交易2" iconName:nil];
+            [self registerViewController:(UIViewController *)v2 title:@"交易1" iconName:nil];
         }
         
-        
-        
-            id<TradeServiceProtocol> s2 = (id<TradeServiceProtocol>)[[BeeHive shareInstance] createService:@protocol(TradeServiceProtocol)];
-            
-            
-            if ([s2 isKindOfClass:[UIViewController class]]) {
-                s2.itemId = @"例子222222";
-                [self registerViewController:(UIViewController *)s2 title:@"交易3" iconName:nil];
-            }
-    
+        id<TradeServiceProtocol> s2 = (id<TradeServiceProtocol>)[[BeeHive shareInstance] createService:@protocol(TradeServiceProtocol)];
+        if ([s2 isKindOfClass:[UIViewController class]]) {
+            s2.itemId = @"例子222222";
+            [self registerViewController:(UIViewController *)s2 title:@"交易2" iconName:nil];
+        }
         
     }
-    
     return self;
 }
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
     self.view.backgroundColor = [UIColor whiteColor];
-    
     sleep(1);
-
-
 }
 
 -(void)registerViewController:(UIViewController *)vc title:(NSString *)title iconName:(NSString *)iconName
 {
+    // 设置tabBarItem
     vc.tabBarItem.image = [UIImage imageNamed:[NSString stringWithFormat:@"Home.bundle/%@", iconName]];
     vc.tabBarItem.title = title;
     
+    // 设置tabbar展示视图
     [self.registerViewControllers addObject:vc];
-    
     self.viewControllers = self.registerViewControllers;
 }
 
 
 -(void)click:(UIButton *)btn
 {
- 
     id<TradeServiceProtocol> obj = [[BeeHive shareInstance] createService:@protocol(TradeServiceProtocol)];
     if ([obj isKindOfClass:[UIViewController class]]) {
         obj.itemId = @"12313231231";
@@ -107,15 +97,12 @@
 
 @implementation demoTableViewController
 
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
 }
 @end

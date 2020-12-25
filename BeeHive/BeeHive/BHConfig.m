@@ -19,7 +19,7 @@
 
 static BHConfig *_BHConfigInstance;
 
-
+// 初始化单例
 + (instancetype)shareInstance
 {
     static dispatch_once_t p;
@@ -126,6 +126,7 @@ static BHConfig *_BHConfigInstance;
 + (void)set:(NSString *)key value:(id)value
 {
     if (![BHConfig shareInstance].config) {
+        // 不存在，进行初始化config字典
         [BHConfig shareInstance].config = [[NSMutableDictionary alloc] initWithCapacity:10];
     }
     
@@ -147,6 +148,7 @@ static BHConfig *_BHConfigInstance;
 + (void) add:(NSDictionary *)parameters
 {
     if (![BHConfig shareInstance].config) {
+        // 不存在，进行初始化config字典
         [BHConfig shareInstance].config = [[NSMutableDictionary alloc] initWithCapacity:10];
     }
     

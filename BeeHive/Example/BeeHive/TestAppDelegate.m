@@ -27,13 +27,15 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     
-    
+    // 设置全局上下文参数
     [BHContext shareInstance].application = application;
     [BHContext shareInstance].launchOptions = launchOptions;
     [BHContext shareInstance].moduleConfigName = @"BeeHive.bundle/BeeHive";//可选，默认为BeeHive.bundle/BeeHive.plist
     [BHContext shareInstance].serviceConfigName = @"BeeHive.bundle/BHService";
     
+    // 启动异常
     [BeeHive shareInstance].enableException = YES;
+    // 保存应用全局上下文
     [[BeeHive shareInstance] setContext:[BHContext shareInstance]];
     [[BHTimeProfiler sharedTimeProfiler] recordEventTime:@"BeeHive::super start launch"];
 

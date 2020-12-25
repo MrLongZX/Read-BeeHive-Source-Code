@@ -8,10 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+// 全局配置
 @interface BHConfig : NSObject
 
+// 初始化单例
 + (instancetype)shareInstance;
 
+// 以下都是操作内部config字典的方法
 + (id)get:(NSString *)key;
 
 + (BOOL)has:(NSString *)key;

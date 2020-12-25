@@ -30,15 +30,19 @@ typedef enum
 
 //application appkey
 @property(nonatomic, strong) NSString *appkey;
-//customEvent>=1000
+//customEvent>=1000 自定义事件
 @property(nonatomic, assign) NSInteger customEvent;
 
+// 应用对象
 @property(nonatomic, strong) UIApplication *application;
 
+// 启动选项
 @property(nonatomic, strong) NSDictionary *launchOptions;
 
+// 组件配置名称
 @property(nonatomic, strong) NSString *moduleConfigName;
 
+// 服务配置名称
 @property(nonatomic, strong) NSString *serviceConfigName;
 
 //3D-Touch model
@@ -58,7 +62,7 @@ typedef enum
 //watch Model
 @property (nonatomic, strong) BHWatchItem *watchItem;
 
-//custom param
+//custom param 自定义参数
 @property (nonatomic, copy) NSDictionary *customParam;
 
 + (instancetype)shareInstance;
