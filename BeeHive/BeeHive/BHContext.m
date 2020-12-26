@@ -57,7 +57,7 @@
     if (self) {
         self.modulesByName  = [[NSMutableDictionary alloc] initWithCapacity:1];
         self.servicesByName  = [[NSMutableDictionary alloc] initWithCapacity:1];
-        // 默认组件配置名称
+        // 默认模块配置名称
         self.moduleConfigName = @"BeeHive.bundle/BeeHive";
         // 默认服务配置名称
         self.serviceConfigName = @"BeeHive.bundle/BHService";

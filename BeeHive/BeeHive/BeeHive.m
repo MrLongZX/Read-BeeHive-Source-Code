@@ -24,7 +24,7 @@
     return BHInstance;
 }
 
-// 注册动态组件
+// 注册动态模块
 + (void)registerDynamicModule:(Class)moduleClass
 {
     [[BHModuleManager sharedManager] registerDynamicModule:moduleClass];
@@ -39,7 +39,7 @@
 {
     [[BHServiceManager sharedManager] registerService:proto implClass:serviceClass];
 }
-    
+
 + (void)triggerCustomEvent:(NSInteger)eventType
 {
     if(eventType < 1000) {
@@ -68,10 +68,10 @@
 - (void)loadStaticModules
 {
     
-    // 读取本地组件配置plist文件里面的Module，并注册到BHModuleManager的BHModuleInfos数组中
+    // 读取本地模块配置plist文件里面的Module，并注册到BHModuleManager的BHModuleInfos数组中
     [[BHModuleManager sharedManager] loadLocalModules];
     
-    // 根据BHModuleInfos，实例化组件，添加到BHModules数组，再对组件实例注册系统事件
+    // 根据BHModuleInfos，实例化模块，添加到BHModules数组，再对模块实例注册系统事件
     [[BHModuleManager sharedManager] registedAllModules];
     
 }
@@ -81,7 +81,6 @@
     [BHServiceManager sharedManager].enableException = self.enableException;
     
     [[BHServiceManager sharedManager] registerLocalServices];
-    
 }
 
 @end

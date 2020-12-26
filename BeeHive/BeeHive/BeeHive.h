@@ -23,7 +23,7 @@
 
 + (instancetype)shareInstance;
 
-// 注册动态组件
+// 注册动态模块
 + (void)registerDynamicModule:(Class) moduleClass;
 
 - (id)createService:(Protocol *)proto;

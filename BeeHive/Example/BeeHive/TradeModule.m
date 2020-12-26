@@ -18,7 +18,7 @@
 
 + (void)load
 {
-    // 注册动态组件
+    // 注册动态模块
     [BeeHive registerDynamicModule:[self class]];
 }
 

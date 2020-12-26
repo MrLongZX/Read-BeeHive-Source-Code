@@ -39,7 +39,7 @@ typedef enum
 // 启动选项
 @property(nonatomic, strong) NSDictionary *launchOptions;
 
-// 组件配置名称
+// 模块配置名称
 @property(nonatomic, strong) NSString *moduleConfigName;
 
 // 服务配置名称
