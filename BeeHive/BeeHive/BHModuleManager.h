@@ -53,25 +53,31 @@ typedef NS_ENUM(NSInteger, BHModuleEventType)
 
 // If you do not comply with set Level protocol, the default Normal
 // 如果您不遵守设置级别协议，则默认为“正常”
-// 注册动态组件
+// 注册动态模块
 - (void)registerDynamicModule:(Class)moduleClass;
 
-// 注册动态组件 是否触发初始化事件
+// 注册动态模块 是否触发初始化事件
 - (void)registerDynamicModule:(Class)moduleClass
        shouldTriggerInitEvent:(BOOL)shouldTriggerInitEvent;
 
+// 移除注册的动态组建
 - (void)unRegisterDynamicModule:(Class)moduleClass;
 
+// 加载本地模块信息到self.BHModuleInfos
 - (void)loadLocalModules;
 
+// 注册所有的模块，将BHModuleInfos中的模块信息实例化，保存到self.BHModules
 - (void)registedAllModules;
 
+// 对模块实例注册自定义事件
 - (void)registerCustomEvent:(NSInteger)eventType
          withModuleInstance:(id)moduleInstance
              andSelectorStr:(NSString *)selectorStr;
 
+// 触发某个事件
 - (void)triggerEvent:(NSInteger)eventType;
 
+// 触发某个事件 传递自定义参数
 - (void)triggerEvent:(NSInteger)eventType
      withCustomParam:(NSDictionary *)customParam;
 

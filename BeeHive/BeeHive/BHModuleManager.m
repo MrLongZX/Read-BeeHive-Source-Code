@@ -50,11 +50,13 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
 
 @property(nonatomic, strong) NSMutableArray     *BHModuleDynamicClasses;
 
-// 组件信息数组
+// 模块信息数组
 @property(nonatomic, strong) NSMutableArray<NSDictionary *>     *BHModuleInfos;
+// 模块实例对象数组
 @property(nonatomic, strong) NSMutableArray     *BHModules;
-
+// 模块事件字典
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, NSMutableArray<id<BHModuleProtocol>> *> *BHModulesByEvent;
+// 所有的事件方法字典
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, NSString *> *BHSelectorByEvent;
 
 @end
@@ -75,90 +77,99 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
 
 - (void)loadLocalModules
 {
-    // 组件配置plist路径
+    // 模块配置plist路径
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:[BHContext shareInstance].moduleConfigName ofType:@"plist"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
         // 文件不存在
         return;
     }
     
-    // 组件配置字典数据
+    // 模块配置字典数据
     NSDictionary *moduleList = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
     
     // kModuleArrayKey：moduleClasses
-    // 组件数组
+    // 模块数组
     NSArray<NSDictionary *> *modulesArray = [moduleList objectForKey:kModuleArrayKey];
-    // 组件类信息字典
+    // 模块类信息字典
     NSMutableDictionary<NSString *, NSNumber *> *moduleInfoByClass = @{}.mutableCopy;
     // kModuleInfoNameKey：moduleClass
     [self.BHModuleInfos enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        // 保存组件信息中的moduleClass字段值 到 组件类信息字典
+        // 保存模块信息中的moduleClass字段值 到 模块类信息字典
         [moduleInfoByClass setObject:@1 forKey:[obj objectForKey:kModuleInfoNameKey]];
     }];
     [modulesArray enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (!moduleInfoByClass[[obj objectForKey:kModuleInfoNameKey]]) {
-            // moduleInfoByClass中不存在modulesArray中的组件信息，也就是self.BHModuleInfos中不存在modulesArray中obj的信息
+            // moduleInfoByClass中不存在modulesArray中的模块信息，也就是self.BHModuleInfos中不存在modulesArray中obj的信息
             // 则添加到self.BHModuleInfos中
             [self.BHModuleInfos addObject:obj];
         }
     }];
 }
 
-// 注册动态组件
+// 注册动态模块
 - (void)registerDynamicModule:(Class)moduleClass
 {
     [self registerDynamicModule:moduleClass shouldTriggerInitEvent:NO];
 }
 
-// 注册动态组件 是否触发初始化事件
+// 注册动态模块 是否触发初始化事件
 - (void)registerDynamicModule:(Class)moduleClass
        shouldTriggerInitEvent:(BOOL)shouldTriggerInitEvent
 {
     [self addModuleFromObject:moduleClass shouldTriggerInitEvent:shouldTriggerInitEvent];
 }
 
+// 移除注册的动态组建
 - (void)unRegisterDynamicModule:(Class)moduleClass {
     if (!moduleClass) {
         return;
     }
+    // 根据数组的内容评估给定谓词，只保留匹配的对象
+    // 将self.BHModuleInfos中类名为moduleClass的模块信息移除掉
     [self.BHModuleInfos filterUsingPredicate:[NSPredicate predicateWithFormat:@"%@!=%@", kModuleInfoNameKey, NSStringFromClass(moduleClass)]];
     __block NSInteger index = -1;
     [self.BHModules enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        // BHModules中的模块实例obj，是否是moduleClass的实例对象或子类的实例对象
         if ([obj isKindOfClass:moduleClass]) {
+            // 保存位置，并跳出循环
             index = idx;
             *stop = YES;
         }
     }];
     if (index >= 0) {
+        // 将self.BHModules中moduleClass模块实例移除
         [self.BHModules removeObjectAtIndex:index];
     }
     [self.BHModulesByEvent enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, NSMutableArray<id<BHModuleProtocol>> * _Nonnull obj, BOOL * _Nonnull stop) {
         __block NSInteger index = -1;
         [obj enumerateObjectsUsingBlock:^(id<BHModuleProtocol>  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            // obj是否是moduleClass的实例对象或子类的实例对象
             if ([obj isKindOfClass:moduleClass]) {
+                // 保存位置
                 index = idx;
                 *stop = NO;
             }
         }];
         if (index >= 0) {
+            // 将模块事件字典中moduleClass模块实例移除
             [obj removeObjectAtIndex:index];
         }
     }];
 }
 
-// 注册所有组件
-// 根据self.BHModuleInfos，实例化组件，添加到BHModules数组，再对组件实例注册系统事件
+// 注册所有模块
+// 根据self.BHModuleInfos，实例化模块，添加到BHModules数组，再对模块实例注册系统事件
 - (void)registedAllModules
 {
     // 根据级别、优先级从大到小进行排序
     [self.BHModuleInfos sortUsingComparator:^NSComparisonResult(NSDictionary *module1, NSDictionary *module2) {
-        // 组件级别
+        // 模块级别
         NSNumber *module1Level = (NSNumber *)[module1 objectForKey:kModuleInfoLevelKey];
         NSNumber *module2Level =  (NSNumber *)[module2 objectForKey:kModuleInfoLevelKey];
         if (module1Level.integerValue != module2Level.integerValue) {
             return module1Level.integerValue > module2Level.integerValue;
         } else {
-            // 组件优先级
+            // 模块优先级
             NSNumber *module1Priority = (NSNumber *)[module1 objectForKey:kModuleInfoPriorityKey];
             NSNumber *module2Priority = (NSNumber *)[module2 objectForKey:kModuleInfoPriorityKey];
             return module1Priority.integerValue < module2Priority.integerValue;
@@ -191,25 +202,31 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     // 添加到BHModules数组
     [self.BHModules addObjectsFromArray:tmpArray];
     
-    // 对组件注册所有的系统事件
+    // 对模块注册所有的系统事件
     [self registerAllSystemEvents];
 }
 
+// 对模块实例注册自定义事件
 - (void)registerCustomEvent:(NSInteger)eventType
    withModuleInstance:(id)moduleInstance
        andSelectorStr:(NSString *)selectorStr {
     if (eventType < 1000) {
+        // 不是自定义事件
         return;
     }
+    
+    // 注册事件
     [self registerEvent:eventType withModuleInstance:moduleInstance andSelectorStr:selectorStr];
 }
 
+// 触发某个事件
 - (void)triggerEvent:(NSInteger)eventType
 {
     [self triggerEvent:eventType withCustomParam:nil];
     
 }
 
+// 触发某个事件 传递自定义参数
 - (void)triggerEvent:(NSInteger)eventType
      withCustomParam:(NSDictionary *)customParam {
     [self handleModuleEvent:eventType forTarget:nil withCustomParam:customParam];
@@ -246,7 +263,7 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     return BHModuleNormal;
 }
 
-// 添加组件 是否触发初始化事件
+// 添加模块 是否触发初始化事件
 - (void)addModuleFromObject:(id)object
      shouldTriggerInitEvent:(BOOL)shouldTriggerInitEvent
 {
@@ -256,7 +273,7 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     if (object) {
         // 类
         class = object;
-        // 组件名称
+        // 模块名称
         moduleName = NSStringFromClass(class);
     } else {
         return ;
@@ -264,21 +281,21 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     
     __block BOOL flag = YES;
     [self.BHModules enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        // BHModules中的组件实例obj，是否是class的实例对象或子类的实例对象
+        // BHModules中的模块实例obj，是否是class的实例对象或子类的实例对象
         if ([obj isKindOfClass:class]) {
-            // 是，说明组件已经注册过，设为NO
+            // 是，说明模块已经注册过，设为NO
             flag = NO;
             *stop = YES;
         }
     }];
     if (!flag) {
-        // 组件已经注册过
+        // 模块已经注册过
         return;
     }
     
     // 是否遵循BHModuleProtocol协议
     if ([class conformsToProtocol:@protocol(BHModuleProtocol)]) {
-        // 组件信息字典
+        // 模块信息字典
         NSMutableDictionary *moduleInfo = [NSMutableDictionary dictionary];
         
         // class是否实现basicModuleLevel方法
@@ -294,14 +311,14 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
         // 设置级别信息
         [moduleInfo setObject:@(levelInt) forKey:kModuleInfoLevelKey];
         if (moduleName) {
-            // 设置组件名称信息
+            // 设置模块名称信息
             [moduleInfo setObject:moduleName forKey:kModuleInfoNameKey];
         }
 
         // 添加到BHModuleInfos
         [self.BHModuleInfos addObject:moduleInfo];
         
-        // 实例化组件对象
+        // 实例化模块对象
         id<BHModuleProtocol> moduleInstance = [[class alloc] init];
         // 添加到BHModules
         [self.BHModules addObject:moduleInstance];
@@ -313,11 +330,11 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
             NSNumber *module1Level = @(BHModuleNormal);
             NSNumber *module2Level = @(BHModuleNormal);
             if ([moduleInstance1 respondsToSelector:@selector(basicModuleLevel)]) {
-                // 组件实例实现basicModuleLevel方法，则级别为basic
+                // 模块实例实现basicModuleLevel方法，则级别为basic
                 module1Level = @(BHModuleBasic);
             }
             if ([moduleInstance2 respondsToSelector:@selector(basicModuleLevel)]) {
-                // 组件实例实现basicModuleLevel方法，则级别为basic
+                // 模块实例实现basicModuleLevel方法，则级别为basic
                 module2Level = @(BHModuleBasic);
             }
             if (module1Level.integerValue != module2Level.integerValue) {
@@ -327,17 +344,17 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
                 NSInteger module1Priority = 0;
                 NSInteger module2Priority = 0;
                 if ([moduleInstance1 respondsToSelector:@selector(modulePriority)]) {
-                    // 组件实例实现modulePriority方法，则获取组件实例的优先级
+                    // 模块实例实现modulePriority方法，则获取模块实例的优先级
                     module1Priority = [moduleInstance1 modulePriority];
                 }
                 if ([moduleInstance2 respondsToSelector:@selector(modulePriority)]) {
-                    // 组件实例实现modulePriority方法，则获取组件实例的优先级
+                    // 模块实例实现modulePriority方法，则获取模块实例的优先级
                     module2Priority = [moduleInstance2 modulePriority];
                 }
                 return module1Priority < module2Priority;
             }
         }];
-        // 对组件实例注册事件
+        // 对模块实例注册事件
         [self registerEventsByModuleInstance:moduleInstance];
         
         // 是否触发初始化事件
@@ -357,32 +374,32 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
 // 注册所有系统事件
 - (void)registerAllSystemEvents
 {
-    // 遍历组件
+    // 遍历模块
     [self.BHModules enumerateObjectsUsingBlock:^(id<BHModuleProtocol> moduleInstance, NSUInteger idx, BOOL * _Nonnull stop) {
         [self registerEventsByModuleInstance:moduleInstance];
     }];
 }
 
-// 对组件实例注册事件
+// 对模块实例注册事件
 - (void)registerEventsByModuleInstance:(id<BHModuleProtocol>)moduleInstance
 {
     // 所有的事件类型
     NSArray<NSNumber *> *events = self.BHSelectorByEvent.allKeys;
-    // 对组件实例注册系统事件
+    // 对模块实例注册系统事件
     [events enumerateObjectsUsingBlock:^(NSNumber * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self registerEvent:obj.integerValue withModuleInstance:moduleInstance andSelectorStr:self.BHSelectorByEvent[obj]];
     }];
 }
 
-// 对组件实例注册某个系统事件
-// 就是将事件与组件实例添加到self.BHModulesByEvent字典中
+// 对模块实例注册某个系统事件
+// 就是将事件与模块实例添加到self.BHModulesByEvent字典中
 - (void)registerEvent:(NSInteger)eventType
          withModuleInstance:(id)moduleInstance
              andSelectorStr:(NSString *)selectorStr {
     // 方法选择器
     SEL selector = NSSelectorFromString(selectorStr);
     if (!selector || ![moduleInstance respondsToSelector:selector]) {
-        // 方法选择器为nil 或 组件实例没有实现改方法
+        // 方法选择器为nil 或 模块实例没有实现改方法
         return;
     }
     NSNumber *eventTypeNumber = @(eventType);
@@ -391,14 +408,14 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
         [self.BHSelectorByEvent setObject:selectorStr forKey:eventTypeNumber];
     }
     if (!self.BHModulesByEvent[eventTypeNumber]) {
-        // 组件事件字典 不包含 该事件类型，则添加进去
+        // 模块事件字典 不包含 该事件类型，则添加进去
         [self.BHModulesByEvent setObject:@[].mutableCopy forKey:eventTypeNumber];
     }
-    // 根据事件类型 从组件事件字典 取出注册了该事件类型的组件实例组成的数组
+    // 根据事件类型 从模块事件字典 取出注册了该事件类型的模块实例组成的数组
     NSMutableArray *eventModules = [self.BHModulesByEvent objectForKey:eventTypeNumber];
-    // 注册了该事件类型的组件实例组成的数组 不包含 当前组件实例
+    // 注册了该事件类型的模块实例组成的数组 不包含 当前模块实例
     if (![eventModules containsObject:moduleInstance]) {
-        // 则添加到 注册了该事件类型的组件实例组成的数组 中
+        // 则添加到 注册了该事件类型的模块实例组成的数组 中
         [eventModules addObject:moduleInstance];
         // 根据级别和优先级进行排序
         [eventModules sortUsingComparator:^NSComparisonResult(id<BHModuleProtocol> moduleInstance1, id<BHModuleProtocol> moduleInstance2) {
@@ -406,11 +423,11 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
             NSNumber *module1Level = @(BHModuleNormal);
             NSNumber *module2Level = @(BHModuleNormal);
             if ([moduleInstance1 respondsToSelector:@selector(basicModuleLevel)]) {
-                // 组件实例实现basicModuleLevel方法，则级别为basic
+                // 模块实例实现basicModuleLevel方法，则级别为basic
                 module1Level = @(BHModuleBasic);
             }
             if ([moduleInstance2 respondsToSelector:@selector(basicModuleLevel)]) {
-                // 组件实例实现basicModuleLevel方法，则级别为basic
+                // 模块实例实现basicModuleLevel方法，则级别为basic
                 module2Level = @(BHModuleBasic);
             }
             if (module1Level.integerValue != module2Level.integerValue) {
@@ -420,11 +437,11 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
                 NSInteger module1Priority = 0;
                 NSInteger module2Priority = 0;
                 if ([moduleInstance1 respondsToSelector:@selector(modulePriority)]) {
-                    // 组件实例实现modulePriority方法，则获取组件实例的优先级
+                    // 模块实例实现modulePriority方法，则获取模块实例的优先级
                     module1Priority = [moduleInstance1 modulePriority];
                 }
                 if ([moduleInstance2 respondsToSelector:@selector(modulePriority)]) {
-                    // 组件实例实现modulePriority方法，则获取组件实例的优先级
+                    // 模块实例实现modulePriority方法，则获取模块实例的优先级
                     module2Priority = [moduleInstance2 modulePriority];
                 }
                 return module1Priority < module2Priority;
@@ -505,17 +522,20 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
                 forTarget:(id<BHModuleProtocol>)target
           withCustomParam:(NSDictionary *)customParam
 {
+    // 判断事件类型
     switch (eventType) {
         case BHMInitEvent:
-            //special
+            //special 调用指定处理模块初始化事件方法
             [self handleModulesInitEventForTarget:nil withCustomParam :customParam];
             break;
         case BHMTearDownEvent:
-            //special
+            //special 调用指定处理模块卸载事件方法
             [self handleModulesTearDownEventForTarget:nil withCustomParam:customParam];
             break;
         default: {
+            // 根据事件类型，从self.BHSelectorByEvent获取要执行的方法
             NSString *selectorStr = [self.BHSelectorByEvent objectForKey:@(eventType)];
+            // 执行处理组建事件通用方法
             [self handleModuleEvent:eventType forTarget:nil withSeletorStr:selectorStr andCustomParam:customParam];
         }
             break;
@@ -523,7 +543,7 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     
 }
 
-// 处理组件初始化事件
+// 处理模块初始化事件
 - (void)handleModulesInitEventForTarget:(id<BHModuleProtocol>)target
                         withCustomParam:(NSDictionary *)customParam
 {
@@ -534,10 +554,10 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     
     NSArray<id<BHModuleProtocol>> *moduleInstances;
     if (target) {
-        // 组件实例数组
+        // 模块实例数组
         moduleInstances = @[target];
     } else {
-        // 根据事件类型，从BHModulesByEvent获取注册了该事件类型的组件实例数组
+        // 根据事件类型，从BHModulesByEvent获取注册了该事件类型的模块实例数组
         moduleInstances = [self.BHModulesByEvent objectForKey:@(BHMInitEvent)];
     }
     
@@ -548,7 +568,7 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
             __strong typeof(&*self) sself = wself;
             if (sself) {
                 if ([moduleInstance respondsToSelector:@selector(modInit:)]) {
-                    // 组件实例实现了modInit方法，则进行调用
+                    // 模块实例实现了modInit方法，则进行调用
                     [moduleInstance modInit:context];
                 }
             }
@@ -557,7 +577,7 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
         [[BHTimeProfiler sharedTimeProfiler] recordEventTime:[NSString stringWithFormat:@"%@ --- modInit:", [moduleInstance class]]];
         
         if ([moduleInstance respondsToSelector:@selector(async)]) {
-            // 组件实例实现了async方法，则进行调用，获取是否需要异步调用modInit方法
+            // 模块实例实现了async方法，则进行调用，获取是否需要异步调用modInit方法
             BOOL async = [moduleInstance async];
             
             if (async) {
@@ -577,6 +597,7 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     }];
 }
 
+// 处理模块卸载事件
 - (void)handleModulesTearDownEventForTarget:(id<BHModuleProtocol>)target
                             withCustomParam:(NSDictionary *)customParam
 {
@@ -587,23 +608,25 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     
     NSArray<id<BHModuleProtocol>> *moduleInstances;
     if (target) {
-        // 组件实例数组
+        // 模块实例数组
         moduleInstances = @[target];
     } else {
-        // 根据事件类型，从BHModulesByEvent获取注册了该事件类型的组件实例数组
+        // 根据事件类型，从BHModulesByEvent获取注册了该事件类型的模块实例数组
         moduleInstances = [self.BHModulesByEvent objectForKey:@(BHMTearDownEvent)];
     }
 
-    //Reverse Order to unload
+    //Reverse Order to unload 逆序卸载
     for (int i = (int)moduleInstances.count - 1; i >= 0; i--) {
+        // 模块实例对象
         id<BHModuleProtocol> moduleInstance = [moduleInstances objectAtIndex:i];
         if (moduleInstance && [moduleInstance respondsToSelector:@selector(modTearDown:)]) {
+            // 模块实例对象实现了modTearDown方法，则进行调用
             [moduleInstance modTearDown:context];
         }
     }
 }
 
-// 处理组件事件
+// 处理模块事件
 - (void)handleModuleEvent:(NSInteger)eventType
                 forTarget:(id<BHModuleProtocol>)target
            withSeletorStr:(NSString *)selectorStr
@@ -626,17 +649,17 @@ static  NSString *kAppCustomSelector = @"modDidCustomEvent:";
     }
     NSArray<id<BHModuleProtocol>> *moduleInstances;
     if (target) {
-        // 组件实例数组
+        // 模块实例数组
         moduleInstances = @[target];
     } else {
-        // 根据事件类型，从BHModulesByEvent获取注册了该事件类型的组件实例数组
+        // 根据事件类型，从BHModulesByEvent获取注册了该事件类型的模块实例数组
         moduleInstances = [self.BHModulesByEvent objectForKey:@(eventType)];
     }
     [moduleInstances enumerateObjectsUsingBlock:^(id<BHModuleProtocol> moduleInstance, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([moduleInstance respondsToSelector:seletor]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-            // 组件实例执行seletor方法，并传递全局上下文做参数
+            // 模块实例执行seletor方法，并传递全局上下文做参数
             [moduleInstance performSelector:seletor withObject:context];
 #pragma clang diagnostic pop
             
