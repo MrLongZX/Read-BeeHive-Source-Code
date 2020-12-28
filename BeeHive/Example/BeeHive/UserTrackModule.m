@@ -18,7 +18,7 @@
 
 @implementation UserTrackModule
 
-
+// 注册动态模块（同步）
 BH_EXPORT_MODULE(NO)
 
 - (void)modSetUp:(BHContext *)context

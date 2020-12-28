@@ -67,10 +67,13 @@ typedef enum
 
 + (instancetype)shareInstance;
 
+// 添加服务
 - (void)addServiceWithImplInstance:(id)implInstance serviceName:(NSString *)serviceName;
 
+// 移除服务
 - (void)removeServiceWithServiceName:(NSString *)serviceName;
 
+// 获取服务
 - (id)getServiceInstanceFromServiceName:(NSString *)serviceName;
 
 @end

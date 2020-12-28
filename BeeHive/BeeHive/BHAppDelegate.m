@@ -33,10 +33,13 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // 触发全局模块事件字典中注册了BHMSetupEvent事件的模块的BHMSetupEvent事件
     [[BHModuleManager sharedManager] triggerEvent:BHMSetupEvent];
+    // 触发全局模块事件字典中注册了BHMInitEvent事件的模块的BHMInitEvent事件
     [[BHModuleManager sharedManager] triggerEvent:BHMInitEvent];
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        // 主线程，触发全局模块事件字典中注册了BHMSplashEvent事件的模块的BHMSplashEvent事件
         [[BHModuleManager sharedManager] triggerEvent:BHMSplashEvent];
     });
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000

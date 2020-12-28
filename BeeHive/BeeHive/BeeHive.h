@@ -26,6 +26,7 @@
 // 注册动态模块
 + (void)registerDynamicModule:(Class) moduleClass;
 
+// 创建服务
 - (id)createService:(Protocol *)proto;
 
 //Registration is recommended to use a static way

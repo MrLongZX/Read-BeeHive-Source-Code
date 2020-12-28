@@ -79,7 +79,7 @@
 -(void)loadStaticServices
 {
     [BHServiceManager sharedManager].enableException = self.enableException;
-    
+    // 注册本地服务
     [[BHServiceManager sharedManager] registerLocalServices];
 }
 

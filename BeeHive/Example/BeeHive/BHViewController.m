@@ -7,10 +7,10 @@
 //
 
 #import "BHViewController.h"
-
 #import "BeeHive.h"
 #import "BHService.h"
 
+// 注册服务
 @BeeHiveService(HomeServiceProtocol,BHViewController)
 
 @interface BHViewController ()<HomeServiceProtocol>

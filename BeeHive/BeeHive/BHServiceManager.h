@@ -18,13 +18,17 @@
 
 - (void)registerLocalServices;
 
+// 通过服务（协议）、服务实现类，注册服务
 - (void)registerService:(Protocol *)service implClass:(Class)implClass;
 
 - (id)createService:(Protocol *)service;
 - (id)createService:(Protocol *)service withServiceName:(NSString *)serviceName;
+// 通过服务（协议）、服务名称、是否缓存服务，创建服务
 - (id)createService:(Protocol *)service withServiceName:(NSString *)serviceName shouldCache:(BOOL)shouldCache;
 
+// 获取服务实例对象
 - (id)getServiceInstanceFromServiceName:(NSString *)serviceName;
+// 移除服务
 - (void)removeServiceWithServiceName:(NSString *)serviceName;
 
 @end
