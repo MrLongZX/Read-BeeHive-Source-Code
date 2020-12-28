@@ -9,7 +9,16 @@
 #import "ShopModuleService.h"
 #import "ShopModuleViewController.h"
 
+#import "BeeHive.h"
+#import "ShopModuleServiceProtocol.h"
+
 typedef void (^CTUrlRouterCallbackBlock)(NSDictionary *info);
+
+@BeeHiveService(ShopModuleServiceProtocol,ShopModuleService)
+
+@interface ShopModuleService ()<ShopModuleServiceProtocol>
+
+@end
 
 @implementation ShopModuleService
 
@@ -64,8 +73,6 @@ typedef void (^CTUrlRouterCallbackBlock)(NSDictionary *info);
 }
 
 //如果没有找到对应Action，会走到这边
-
-
 - (id)notFound:(NSDictionary *)params
 {
     NSLog(@"sorry, we have find this action");

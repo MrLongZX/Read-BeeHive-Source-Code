@@ -12,3 +12,5 @@
 #import "UserTrackServiceProtocol.h"
 #import "AppUISkeletonServiceProtocol.h"
 #import "AppConfigServiceProtocol.h"
+
+#import "ShopModuleServiceProtocol.h"

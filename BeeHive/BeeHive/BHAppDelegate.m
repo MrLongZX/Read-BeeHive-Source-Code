@@ -30,6 +30,7 @@
 
 @synthesize window;
 
+// 一下都是通过分发系统事件 或 应用事件
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -57,7 +58,7 @@
 
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80400 
-
+// 处理Shortcut
 -(void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
     [[BeeHive shareInstance].context.touchShortcutItem setShortcutItem: shortcutItem];

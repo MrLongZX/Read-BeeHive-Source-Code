@@ -13,10 +13,6 @@
 @property (nonatomic, strong, readwrite) UILabel *valueLabel;
 @property (nonatomic, strong, readwrite) UIImageView *imageView;
 
-@property (nonatomic, strong) UIButton *returnButton;
-
-
-
 @end
 
 @implementation ShopModuleViewController
@@ -24,11 +20,10 @@
 #pragma mark - life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor grayColor];
+    self.view.backgroundColor = [UIColor whiteColor];
     
     [self.view addSubview:self.valueLabel];
     [self.view addSubview:self.imageView];
-    [self.view addSubview:self.returnButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -36,12 +31,11 @@
     [super viewWillAppear:animated];
     
     [self.valueLabel sizeToFit];
-
+    [self.imageView sizeToFit];
 }
 
 #pragma mark - event response
-- (void)didTappedReturnButton:(UIButton *)button
-{
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     if (self.navigationController == nil) {
         [self dismissViewControllerAnimated:YES completion:nil];
     } else {
@@ -65,20 +59,9 @@
     if (_imageView == nil) {
         _imageView = [[UIImageView alloc] init];
         _imageView.contentMode = UIViewContentModeScaleAspectFit;
+        _imageView.center = self.view.center;
     }
     return _imageView;
 }
-
-- (UIButton *)returnButton
-{
-    if (_returnButton == nil) {
-        _returnButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_returnButton addTarget:self action:@selector(didTappedReturnButton:) forControlEvents:UIControlEventTouchUpInside];
-        [_returnButton setTitle:@"return" forState:UIControlStateNormal];
-        [_returnButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-    }
-    return _returnButton;
-}
-
 
 @end
