@@ -11,7 +11,6 @@
 #import "BHService.h"
 #import "BHViewController.h"
 
-
 @interface HomeModule()<BHModuleProtocol>
 
 @end

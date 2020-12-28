@@ -7,10 +7,10 @@
 //
 
 #import "BHViewController.h"
-
 #import "BeeHive.h"
 #import "BHService.h"
 
+// 注册服务
 @BeeHiveService(HomeServiceProtocol,BHViewController)
 
 @interface BHViewController ()<HomeServiceProtocol>
@@ -20,7 +20,6 @@
 @end
 
 @interface demoTableViewController : UIViewController
-
 
 @end
 
@@ -97,12 +96,31 @@
 
 @implementation demoTableViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     
+    UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(CGRectGetMidX(self.view.frame)-50,
+                                                               200,
+                                                               100,
+                                                               80)];
+    btn.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
+    btn.backgroundColor = [UIColor blackColor];
+    [btn setTitle:@"点我" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(click:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:btn];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+}
+
+-(void)click:(UIButton *)btn
+{
+    id<ShopModuleServiceProtocol> obj = [[BeeHive shareInstance] createService:@protocol(ShopModuleServiceProtocol)];
+    if ([obj isKindOfClass:[NSObject class]]) {
+        [obj nativePresentImage:@{@"image":[UIImage imageNamed:@"image1"]}];
+    }
 }
 @end

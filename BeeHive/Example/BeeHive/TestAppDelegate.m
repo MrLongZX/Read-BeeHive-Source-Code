@@ -31,7 +31,7 @@
     [BHContext shareInstance].application = application;
     [BHContext shareInstance].launchOptions = launchOptions;
     [BHContext shareInstance].moduleConfigName = @"BeeHive.bundle/BeeHive";//可选，默认为BeeHive.bundle/BeeHive.plist
-    [BHContext shareInstance].serviceConfigName = @"BeeHive.bundle/BHService";
+    [BHContext shareInstance].serviceConfigName = @"BeeHive.bundle/BHService.plist";
     
     // 启动异常
     [BeeHive shareInstance].enableException = YES;
@@ -44,8 +44,6 @@
     
     
     id<HomeServiceProtocol> homeVc = [[BeeHive shareInstance] createService:@protocol(HomeServiceProtocol)];
-    
-
     if ([homeVc isKindOfClass:[UIViewController class]]) {
         UINavigationController *navCtrl = [[UINavigationController alloc] initWithRootViewController:(UIViewController*)homeVc];
         

@@ -12,6 +12,7 @@
 
 @property(nonatomic, strong) NSMutableDictionary *modulesByName;
 
+//
 @property(nonatomic, strong) NSMutableDictionary *servicesByName;
 
 @end
@@ -37,16 +38,19 @@
 
 - (void)addServiceWithImplInstance:(id)implInstance serviceName:(NSString *)serviceName
 {
+    // 服务名称 服务实现实例对象 添加到 服务名称字典
     [[BHContext shareInstance].servicesByName setObject:implInstance forKey:serviceName];
 }
 
 - (void)removeServiceWithServiceName:(NSString *)serviceName
 {
+    // 从 服务名称字典 中移除服务键值对
     [[BHContext shareInstance].servicesByName removeObjectForKey:serviceName];
 }
 
 - (id)getServiceInstanceFromServiceName:(NSString *)serviceName
 {
+    // 从 服务名称字典 中获取 服务实现实例对象
     return [[BHContext shareInstance].servicesByName objectForKey:serviceName];
 }
 

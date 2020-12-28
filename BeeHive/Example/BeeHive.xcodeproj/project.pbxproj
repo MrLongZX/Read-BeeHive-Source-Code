@@ -69,6 +69,7 @@
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		8924802DAA5D06FB9E3042C5 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		97A6C32E10A5F23827A4649D /* Pods-BeeHive_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BeeHive_Example.debug.xcconfig"; path = "Target Support Files/Pods-BeeHive_Example/Pods-BeeHive_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		A34200422599CA5300DEBB69 /* ShopModuleServiceProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShopModuleServiceProtocol.h; sourceTree = "<group>"; };
 		B88D0ECB222009DE8B82531F /* Pods_BeeHive_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BeeHive_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE5B35A6471442F678BE99CA /* BeeHive.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = BeeHive.podspec; path = ../BeeHive.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		C27EA2524C91BC22CD18A713 /* Pods-BeeHive_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BeeHive_Example.release.xcconfig"; path = "Target Support Files/Pods-BeeHive_Example/Pods-BeeHive_Example.release.xcconfig"; sourceTree = "<group>"; };
@@ -247,6 +248,7 @@
 				E24C02801CA9255600BF6FDE /* HomeServiceProtocol.h */,
 				E24C02811CA9255600BF6FDE /* TradeServiceProtocol.h */,
 				E24C02821CA9255600BF6FDE /* UserTrackServiceProtocol.h */,
+				A34200422599CA5300DEBB69 /* ShopModuleServiceProtocol.h */,
 			);
 			name = Services;
 			sourceTree = "<group>";

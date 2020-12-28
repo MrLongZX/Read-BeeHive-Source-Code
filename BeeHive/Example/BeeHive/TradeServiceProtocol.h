@@ -12,8 +12,6 @@
 
 @protocol TradeServiceProtocol <NSObject, BHServiceProtocol>
 
-
 @property(nonatomic, strong) NSString *itemId;
-
 
 @end
