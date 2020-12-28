@@ -15,7 +15,9 @@ static const NSString *kImpl = @"impl";
 
 @interface BHServiceManager()
 
+// 全局所有的服务字典
 @property (nonatomic, strong) NSMutableDictionary *allServicesDict;
+// 递归所（也是互斥锁）
 @property (nonatomic, strong) NSRecursiveLock *lock;
 
 @end
@@ -32,35 +34,47 @@ static const NSString *kImpl = @"impl";
     return sharedManager;
 }
 
+// 注册所有的本地服务
 - (void)registerLocalServices
 {
+    // 获取全局上下文的服务配置名称
     NSString *serviceConfigName = [BHContext shareInstance].serviceConfigName;
     
+    // 服务配置plist文件路径
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:serviceConfigName ofType:@"plist"];
     if (!plistPath) {
         return;
     }
     
+    // 服务列表
     NSArray *serviceList = [[NSArray alloc] initWithContentsOfFile:plistPath];
     
+    // 加锁
     [self.lock lock];
     for (NSDictionary *dict in serviceList) {
+        // 协议类名称
         NSString *protocolKey = [dict objectForKey:@"service"];
+        // 协议实现类名称
         NSString *protocolImplClass = [dict objectForKey:@"impl"];
         if (protocolKey.length > 0 && protocolImplClass.length > 0) {
+            // 保存到全局服务字典
             [self.allServicesDict addEntriesFromDictionary:@{protocolKey:protocolImplClass}];
         }
     }
+    // 解锁
     [self.lock unlock];
 }
 
+// 通过协议与其实现类 注册服务
 - (void)registerService:(Protocol *)service implClass:(Class)implClass
 {
     NSParameterAssert(service != nil);
     NSParameterAssert(implClass != nil);
     
+    // 实现类是否实现协议
     if (![implClass conformsToProtocol:service]) {
         if (self.enableException) {
+            // 启动异常时，抛出异常
             @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"%@ module does not comply with %@ protocol", NSStringFromClass(implClass), NSStringFromProtocol(service)] userInfo:nil];
         }
         return;

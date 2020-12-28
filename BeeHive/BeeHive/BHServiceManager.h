@@ -12,12 +12,15 @@
 
 @interface BHServiceManager : NSObject
 
+// 启动异常
 @property (nonatomic, assign) BOOL  enableException;
 
 + (instancetype)sharedManager;
 
+// 注册所有的本地服务
 - (void)registerLocalServices;
 
+// 通过协议与其实现类 注册服务
 - (void)registerService:(Protocol *)service implClass:(Class)implClass;
 
 - (id)createService:(Protocol *)service;

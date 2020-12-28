@@ -78,8 +78,9 @@
 
 -(void)loadStaticServices
 {
+    // 传递参数，启动异常
     [BHServiceManager sharedManager].enableException = self.enableException;
-    
+    // 注册所有的本地服务
     [[BHServiceManager sharedManager] registerLocalServices];
 }
 
